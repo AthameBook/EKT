@@ -69,6 +69,5 @@ if __name__ == '__main__':
     extract_cover_thumbs(args.silent, args.overwrite_pdoc_thumbs,
                          args.overwrite_amzn_thumbs,
                          args.overwrite_apnx, args.skip_apnx,
-                         kindlepath, args.azw, args.days,
-                         args.mark_real_pages, args.patch_azw3)
+                         kindlepath, args.azw, args.days)
     Cleaner(kindlepath)
