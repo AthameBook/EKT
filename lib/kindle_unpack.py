@@ -6,21 +6,8 @@
 # Stripped down for KindleButler Copyright (C) 2014 Pawel Jastrzebski
 # <pawelj@vulturis.eu>
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import struct
-
 
 class Sectionizer:
     def __init__(self, filename):
@@ -33,7 +20,6 @@ class Sectionizer:
         sectionsdata = struct.unpack_from('>%dL' % (self.num_sections * 2), self.data, 78) + (self.filelength, 0)  # noqa
         self.sectionoffsets = sectionsdata[::2]
         self.sectionattributes = sectionsdata[1::2]
-        # noinspection PyUnusedLocal
         self.sectiondescriptions = ["" for x in range(self.num_sections + 1)]
         self.sectiondescriptions[-1] = "File Length Only"
         return
@@ -41,15 +27,10 @@ class Sectionizer:
     def setsectiondescription(self, section, description):
         if section < len(self.sectiondescriptions):
             self.sectiondescriptions[section] = description
-        else:
-            print("Section out of range: %d, description %s" % (
-                section, description
-            ))
 
     def load_section(self, section):
         before, after = self.sectionoffsets[section:section + 2]
         return self.data[before:after]
-
 
 class MobiHeader:
     id_map_hexstrings = {
@@ -144,12 +125,11 @@ class MobiHeader:
         elif self.sect.ident == b'TEXtREAd':
             self.sect.setsectiondescription(0, b"PalmDOC Header")
             self.palm = True
-        else:
-            raise OSError('Unknown File Format')
+        #else:
+            #raise OSError('Unknown File Format')
 
         self.records, = struct.unpack_from('>H', self.header, 0x8)
 
-        # set defaults in case this is a PalmDOC
         self.title = self.sect.palmname
         self.length = len(self.header) - 16
         self.type = 3
@@ -199,11 +179,8 @@ class MobiHeader:
             self.exth_length = ((self.exth_length + 3) >> 2) << 2
             self.exth = self.header[self.exth_offset:self.exth_offset + self.exth_length]  # noqa
 
-        # self.mlstart = self.sect.load_section(self.start+1)
-        # self.mlstart = self.mlstart[0:4]
         self.crypto_type, = struct.unpack_from('>H', self.header, 0xC)
 
-        # Start sector for additional files such as images, fonts, resources...
         self.firstresource, = struct.unpack_from('>L', self.header, 0x6C)
         self.firstnontext, = struct.unpack_from('>L', self.header, 0x50)
         if self.firstresource != 0xffffffff:
@@ -212,61 +189,43 @@ class MobiHeader:
             self.firstnontext += self.start
 
         if self.version < 8:
-            # Dictionary metaOrthIndex
             self.metaorthindex, = struct.unpack_from('>L', self.header, 0x28)
             if self.metaorthindex != 0xffffffff:
                 self.metaorthindex += self.start
 
-            # Dictionary metaInflIndex
             self.metainflindex, = struct.unpack_from('>L', self.header, 0x2C)
             if self.metainflindex != 0xffffffff:
                 self.metainflindex += self.start
 
-        # handle older headers without any ncxindex info and later
-        # specifically 0xe4 headers
         if self.length + 16 < 0xf8:
             return
 
-        # NCX Index
         self.ncxidx, = struct.unpack('>L', self.header[0xf4:0xf8])
         if self.ncxidx != 0xffffffff:
             self.ncxidx += self.start
 
-        # K8 specific Indexes
         if self.start != 0 or self.version == 8:
-            # Index into <xml> file skeletons in RawML
             self.skelidx, = struct.unpack_from('>L', self.header, 0xfc)
             if self.skelidx != 0xffffffff:
                 self.skelidx += self.start
 
-            # Index into <div> sections in RawML
             self.dividx, = struct.unpack_from('>L', self.header, 0xf8)
             if self.dividx != 0xffffffff:
                 self.dividx += self.start
 
-            # Index into Other files
             self.othidx, = struct.unpack_from('>L', self.header, 0x104)
             if self.othidx != 0xffffffff:
                 self.othidx += self.start
 
-            # dictionaries do not seem to use the same approach in K8's
-            # so disable them
             self.metaorthindex = 0xffffffff
             self.metainflindex = 0xffffffff
 
-            # need to use the FDST record to find out how to properly unpack
-            # the rawML into pieces
-            # it is simply a table of start and end locations
-            # for each flow piece
             self.fdst, = struct.unpack_from('>L', self.header, 0xc0)
             self.fdstcnt, = struct.unpack_from('>L', self.header, 0xc4)
-            # if cnt is 1 or less, fdst section mumber can be garbage
             if self.fdstcnt <= 1:
                 self.fdst = 0xffffffff
             if self.fdst != 0xffffffff:
                 self.fdst += self.start
-                # setting of fdst section description properly handled
-                # in mobi_kf8proc
 
     def getmetadata(self):
         def addvalue(tmpname, tmpvalue):

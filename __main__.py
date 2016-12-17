@@ -51,20 +51,10 @@ parser.add_argument("--mark-real-pages",
                     "(only with -l and -d)",
                     action="store_true")
 
-if sys.platform == 'darwin':
-    parser.add_argument("-e", "--eject",
-                        help="eject Kindle after completing process",
-                        action="store_true")
-
-if sys.platform == "win32":
-    from lib.win_utf8_console import fix_broken_win_console
-    fix_broken_win_console()
-
 args = parser.parse_args()
 
 kindlepath = args.kindle_directory
 docs = os.path.join(kindlepath, 'documents')
-
 
 def user_yes_no_query(question):
     sys.stdout.write('%s [y/n]\n' % question)
@@ -80,6 +70,3 @@ if __name__ == '__main__':
                          args.overwrite_apnx, args.skip_apnx,
                          kindlepath, args.azw, args.days,
                          args.mark_real_pages, args.patch_azw3)
-    if sys.platform == 'darwin':
-        if args.eject:
-            os.system('diskutil eject ' + kindlepath)

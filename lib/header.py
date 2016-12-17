@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-"""Read the header data from a pdb file."""
 
 __license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -8,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 import re
 import struct
 import time
-
 
 class PdbHeaderReader(object):
 
@@ -62,7 +60,6 @@ class PdbHeaderReader(object):
         self.stream.seek(start)
         return self.stream.read(end - start)
 
-
 class PdbHeaderBuilder(object):
 
     def __init__(self, identity, title):
@@ -72,7 +69,6 @@ class PdbHeaderBuilder(object):
         )[:31].encode('ascii', 'replace')
 
     def build_header(self, section_lengths, out_stream):
-        """section_length equal to lenght of each section in file."""
         now = int(time.time())
         nrecords = len(section_lengths)
 
