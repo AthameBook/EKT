@@ -17,6 +17,7 @@ import argparse
 import os
 import sys
 from lib.extract_cover_thumbs import extract_cover_thumbs
+from lib.cleaner import Cleaner
 from distutils.util import strtobool
 
 parser = argparse.ArgumentParser()
@@ -70,3 +71,4 @@ if __name__ == '__main__':
                          args.overwrite_apnx, args.skip_apnx,
                          kindlepath, args.azw, args.days,
                          args.mark_real_pages, args.patch_azw3)
+    Cleaner(kindlepath)

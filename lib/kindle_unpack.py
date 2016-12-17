@@ -125,8 +125,6 @@ class MobiHeader:
         elif self.sect.ident == b'TEXtREAd':
             self.sect.setsectiondescription(0, b"PalmDOC Header")
             self.palm = True
-        #else:
-            #raise OSError('Unknown File Format')
 
         self.records, = struct.unpack_from('>H', self.header, 0x8)
 
