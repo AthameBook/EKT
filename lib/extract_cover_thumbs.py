@@ -9,9 +9,6 @@
 from __future__ import print_function
 import sys
 import os
-#import csv
-#import shutil
-#import tempfile
 
 from imghdr import what
 from io import BytesIO
@@ -23,15 +20,6 @@ from lib.pages import find_exth
 from lib.pages import get_pages
 from lib.kfxmeta import get_kindle_kfx_metadata
 from lib.dualmetafix import DualMobiMetaFix
-
-#def clean_temp(sourcedir):
-    #for p in os.listdir(os.path.join(sourcedir, os.pardir)):
-            #if 'epubQTools-tmp-' in p:
-                #if os.path.isdir(os.path.join(sourcedir, os.pardir, p)):
-                    #try:
-                        #shutil.rmtree(os.path.join(sourcedir, os.pardir, p))
-                    #except:
-                        #raise
 
 def asin_list_from_csv(mf):
     if os.path.isfile(mf):
@@ -57,19 +45,6 @@ def asin_list_from_csv(mf):
                  'file_path']
             )
             return [], []
-
-#def dump_pages(asinlist, filelist, mf, dirpath, fil, is_verbose):
-    #row = get_pages(dirpath, fil, is_verbose)
-    #if row is None:
-        #return
-    #if row[0] in asinlist:
-        #return
-    #if row[6] in filelist:
-        #return
-    #with open(mf, 'ab') as o:
-        #csvwrite = csv.writer(o, delimiter=';', quotechar='"',
-                              #quoting=csv.QUOTE_ALL)
-        #csvwrite.writerow(row)
 
 def get_cover_image(section, mh, metadata, doctype, file, fide, is_verbose):
     try:
@@ -153,17 +128,7 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
         days_int = 0
         diff = 0
 
-    # move CSV file to computer temp dir to speed up updating process
     tempdir = '/mnt/us/documents/' 
-    #tempfile.mkdtemp(suffix='', prefix='extract_cover_thumbs-tmp-')
-    #csv_pages_name = 'ect.csv'
-    #csv_pages = os.path.join(tempdir, csv_pages_name)
-    #if os.path.isfile(os.path.join(docs, csv_pages_name)):
-        #shutil.copy2(os.path.join(docs, csv_pages_name),
-                     #os.path.join(tempdir, csv_pages_name))
-
-    # load ASIN list from CSV
-    #asinlist, filelist = asin_list_from_csv(csv_pages)
 
     if not os.path.isdir(os.path.join(kindlepath, 'system', 'thumbnails')):
         return 1
@@ -201,7 +166,6 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
                 else:
                     if '!DeviceUpgradeLetter!' in fide:
                         continue
-                    #dump_pages(asinlist, filelist, csv_pages, root, name, is_verbose)
                     with open(mobi_path, 'rb') as mf:
                         mobi_content = mf.read()
                         if mobi_content[60:68] != 'BOOKMOBI':
@@ -258,7 +222,4 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
         generate_apnx_files(docs, is_verbose, is_overwrite_apnx,
                             days, tempdir)
 
-    #shutil.copy2(os.path.join(tempdir, csv_pages_name),
-                 #os.path.join(docs, csv_pages_name))
-    #clean_temp(tempdir)
     return 0
