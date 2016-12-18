@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# This file is part of ExtractCoverThumbs, licensed under
+# Based on ExtractCoverThumbs, licensed under
 # GNU Affero GPLv3 or later.
 # Copyright © Robert Błaut.
 #
@@ -56,8 +56,7 @@ def get_cover_image(section, mh, metadata, doctype, file, fide, is_verbose):
             return data
     return False
 
-def generate_apnx_files(docs, is_verbose, is_overwrite_apnx, days,
-                        tempdir):
+def generate_apnx_files(docs, is_overwrite_apnx, days):
     apnx_builder = APNXBuilder()
     if days is not None:
         dtt = datetime.today()
@@ -69,8 +68,7 @@ def generate_apnx_files(docs, is_verbose, is_overwrite_apnx, days,
         for name in files:
             if 'documents' + os.path.sep + 'dictionaries' in root:
                 continue
-            mobi_path = os.path.join(root, name)
-            if "attachables" in mobi_path:
+            if '.sdr' in root:
                 continue
             if days is not None:
                 try:
@@ -104,8 +102,6 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
         days_int = 0
         diff = 0
 
-    tempdir = '/mnt/us/documents/'
-
     if not os.path.isdir(os.path.join(kindlepath, 'system', 'thumbnails')):
         return 1
     if is_azw:
@@ -115,6 +111,8 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
     for root, dirs, files in os.walk(docs):
         for name in files:
             if 'documents' + os.path.sep + 'dictionaries' in root:
+                continue
+            if '.sdr' in root:
                 continue
             if days is not None:
                 try:
@@ -131,8 +129,6 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
                     is_kfx = False
                 fide = name.decode('UTF-8')
                 mobi_path = os.path.join(root, name)
-                if "attachables" in mobi_path:
-                    continue
                 if is_kfx:
                     if '_sample' in fide:
                         continue
@@ -193,7 +189,6 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
                     with open(thumbpath, 'wb') as f:
                         f.write(cover)
     if not skip_apnx:
-        generate_apnx_files(docs, is_verbose, is_overwrite_apnx,
-                            days, tempdir)
+        generate_apnx_files(docs, is_overwrite_apnx, days)
 
     return 0

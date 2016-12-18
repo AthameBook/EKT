@@ -7,22 +7,18 @@
 
 from __future__ import print_function
 
-__license__ = 'GNU Affero GPL v3'
-__copyright__ = '2014, Robert Błaut listy@blaut.biz'
 __appname__ = u'ExtraKindleTools'
-numeric_version = (2, 0, 0)
-__version__ = u'.'.join(map(unicode, numeric_version))
 
 import argparse
 import os
 import sys
-from lib.extract_cover_thumbs import extract_cover_thumbs
 from lib.cleaner import Cleaner
+from lib.extract_cover_thumbs import extract_cover_thumbs
 from distutils.util import strtobool
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-V', '--version', action='version',
-                    version="%(prog)s (version " + __version__ + ")")
+                    version="1.0.0")
 parser.add_argument("kindle_directory", help="directory where is a Kindle"
                     " Paperwhite mounted")
 parser.add_argument("-s", "--silent", help="print less informations",
@@ -66,8 +62,8 @@ def user_yes_no_query(question):
             sys.stdout.write('Please respond with \'y\' or \'n\'.\n')
 
 if __name__ == '__main__':
+    Cleaner(kindlepath)
     extract_cover_thumbs(args.silent, args.overwrite_pdoc_thumbs,
                          args.overwrite_amzn_thumbs,
                          args.overwrite_apnx, args.skip_apnx,
                          kindlepath, args.azw, args.days)
-    Cleaner(kindlepath)

@@ -19,8 +19,13 @@ def Cleaner(kindlepath) :
         if ( files[:18] == 'wininfo_screenshot' and files[-4:] == '.txt'):
             os.chdir(kindlepath)
             os.remove(files)
-
-
+        
+    for root, dirs, files in os.walk(kindlepath):
+        for name in files:
+            if name.lower().endswith('.partial'):
+                partial = os.path.join(root, name)
+                os.remove(partial)
+    
     for root, dirs, files in list_dirs:
         for numb in dirs:
             if numb:
@@ -96,4 +101,9 @@ def Cleaner(kindlepath) :
                             except OSError, (errno, strerror):
                                 problem = 1
                             clean = True
-                break 
+                break
+    
+        for name in dirs:
+            if len(os.listdir(name)) == 0:
+                empty = os.path.join(root, name)
+                os.rmdir(empty)
