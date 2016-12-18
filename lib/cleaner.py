@@ -20,7 +20,7 @@ def Cleaner(kindlepath) :
             os.chdir(kindlepath)
             os.remove(files)
         
-    for root, dirs, files in os.walk(kindlepath):
+    for root, dirs, files in os.walk(kindlepath + 'system'):
         for name in files:
             if name.lower().endswith('.partial'):
                 partial = os.path.join(root, name)

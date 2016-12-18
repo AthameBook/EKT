@@ -6,7 +6,6 @@
 # Copyright © Robert Błaut.
 #
 
-from __future__ import print_function
 import sys
 import os
 
@@ -21,9 +20,7 @@ from lib.pages import get_pages
 from lib.kfxmeta import get_kindle_kfx_metadata
 from lib.dualmetafix import DualMobiMetaFix
 
-SFENC = sys.getfilesystemencoding()
-
-def get_cover_image(section, mh, metadata, doctype, file, fide, is_verbose):
+def get_cover_image(section, mh, metadata, doctype, file, fide):
     try:
         cover_offset = metadata['CoverOffset'][0]
     except KeyError:
@@ -56,7 +53,7 @@ def get_cover_image(section, mh, metadata, doctype, file, fide, is_verbose):
             return data
     return False
 
-def generate_apnx_files(docs, is_overwrite_apnx, days):
+def generate_apnx_files(docs, days):
     apnx_builder = APNXBuilder()
     if days is not None:
         dtt = datetime.today()
@@ -68,6 +65,7 @@ def generate_apnx_files(docs, is_overwrite_apnx, days):
         for name in files:
             if 'documents' + os.path.sep + 'dictionaries' in root:
                 continue
+            mobi_path = os.path.join(root, name)    
             if '.sdr' in root:
                 continue
             if days is not None:
@@ -85,16 +83,13 @@ def generate_apnx_files(docs, is_overwrite_apnx, days):
                     os.makedirs(sdr_dir)
                 apnx_path = os.path.join(sdr_dir, os.path.splitext(
                                          name)[0] + '.apnx')
-                if not os.path.isfile(apnx_path) or is_overwrite_apnx:
+                if not os.path.isfile(apnx_path):
                     if '!DeviceUpgradeLetter!' in name:
                         continue
                     apnx_builder.write_apnx(mobi_path, apnx_path)
 
-def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
-                         is_overwrite_amzn_thumbs, is_overwrite_apnx,
-                         skip_apnx, kindlepath, is_azw, days):
+def extract_cover_thumbs(kindlepath, days):
     docs = os.path.join(kindlepath, 'documents')
-    is_verbose = not is_silent
     if days is not None:
         dtt = datetime.today()
         days_int = int(days)
@@ -104,10 +99,7 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
 
     if not os.path.isdir(os.path.join(kindlepath, 'system', 'thumbnails')):
         return 1
-    if is_azw:
-        extensions = ('.azw', '.azw3', '.mobi', '.kfx', '.azw8')
-    else:
-        extensions = ('.azw3', '.mobi', '.kfx', '.azw8')
+    extensions = ('.azw', '.azw3', '.mobi', '.kfx', '.azw8')
     for root, dirs, files in os.walk(docs):
         for name in files:
             if 'documents' + os.path.sep + 'dictionaries' in root:
@@ -166,11 +158,7 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
                     kindlepath, 'system', 'thumbnails',
                     'thumbnail_%s_%s_portrait.jpg' % (asin, doctype)
                 )
-                if (not os.path.isfile(thumbpath) or
-                        (is_overwrite_pdoc_thumbs and doctype == 'PDOC') or
-                        (is_overwrite_amzn_thumbs and (
-                            doctype == 'EBOK' or doctype == 'EBSP'
-                        ))):
+                if (not os.path.isfile(thumbpath)):
                     if is_kfx:
                         image_data = kfx_metadata.get("cover_image_data")
                         if not image_data:
@@ -180,15 +168,14 @@ def extract_cover_thumbs(is_silent, is_overwrite_pdoc_thumbs,
                             cover = image_data.decode('base64')
                         else:
                             cover = get_cover_image(section, mh, metadata,
-                                                    doctype, name,
-                                                    fide, is_verbose)
+                                                    doctype, name, fide)
                     except IOError:
                         continue
                     if not cover:
                         continue
                     with open(thumbpath, 'wb') as f:
                         f.write(cover)
-    if not skip_apnx:
-        generate_apnx_files(docs, is_overwrite_apnx, days)
+                        
+    generate_apnx_files(docs, days)
 
     return 0

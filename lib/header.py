@@ -31,9 +31,6 @@ class PdbHeaderReader(object):
                       self.stream.read(32).replace('\x00', ''))
 
     def full_section_info(self, number):
-        if number not in range(0, self.num_sections):
-            raise ValueError('Not a valid section number %i' % number)
-
         self.stream.seek(78 + number * 8)
         offset, a1, a2, a3, a4 = struct.unpack('>LBBBB',
                                                self.stream.read(8))[0]
@@ -41,16 +38,10 @@ class PdbHeaderReader(object):
         return (offset, flags, val)
 
     def section_offset(self, number):
-        if number not in range(0, self.num_sections):
-            raise ValueError('Not a valid section number %i' % number)
-
         self.stream.seek(78 + number * 8)
         return struct.unpack('>LBBBB', self.stream.read(8))[0]
 
     def section_data(self, number):
-        if number not in range(0, self.num_sections):
-            raise ValueError('Not a valid section number %i' % number)
-
         start = self.section_offset(number)
         if number == self.num_sections - 1:
             self.stream.seek(0, 2)
