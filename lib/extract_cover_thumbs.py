@@ -4,9 +4,7 @@
 # Based on ExtractCoverThumbs, licensed under
 # GNU Affero GPLv3 or later.
 # Copyright © Robert Błaut.
-#
 
-import sys
 import os
 
 from imghdr import what
