@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 
-import os, glob, shutil
+import glob, os, shutil
 
 def Cleaner(kindlepath) :
 
@@ -25,6 +25,11 @@ def Cleaner(kindlepath) :
             if name.lower().endswith('.partial'):
                 partial = os.path.join(root, name)
                 os.remove(partial)
+    
+    for files in os.listdir(documentsPath):
+        if files.endswith('_ASC'):
+            os.chdir(documentsPath)
+            os.remove(files)
     
     for root, dirs, files in list_dirs:
         for numb in dirs:

@@ -4,7 +4,9 @@
 # Based on ExtractCoverThumbs, licensed under
 # GNU Affero GPLv3 or later.
 # Copyright © Robert Błaut.
+#
 
+#import sys
 import os
 
 from imghdr import what
@@ -18,7 +20,9 @@ from lib.pages import get_pages
 from lib.kfxmeta import get_kindle_kfx_metadata
 from lib.dualmetafix import DualMobiMetaFix
 
-def get_cover_image(section, mh, metadata, doctype, file, fide):
+from PIL import Image
+
+def get_cover_image(section, mh, metadata, file, fide):
     try:
         cover_offset = metadata['CoverOffset'][0]
     except KeyError:
@@ -48,8 +52,14 @@ def get_cover_image(section, mh, metadata, doctype, file, fide):
         else:
             imgnames.append(i)
         if len(imgnames) - 1 == int(cover_offset):
-            return data
+           return process_image(data)
     return False
+
+def process_image(data):
+    cover = Image.open(BytesIO(data))
+    cover.thumbnail((305, 470), Image.ANTIALIAS)
+    cover = cover.convert('L')
+    return cover
 
 def generate_apnx_files(docs, days):
     apnx_builder = APNXBuilder()
@@ -100,8 +110,8 @@ def extract_cover_thumbs(kindlepath, days):
     extensions = ('.azw', '.azw3', '.mobi', '.kfx', '.azw8')
     for root, dirs, files in os.walk(docs):
         for name in files:
-            if 'documents' + os.path.sep + 'dictionaries' in root:
-                continue
+#            if 'documents' + os.path.sep + 'dictionaries' in root:
+#                continue
             if '.sdr' in root:
                 continue
             if days is not None:
@@ -163,17 +173,14 @@ def extract_cover_thumbs(kindlepath, days):
                             continue
                     try:
                         if is_kfx:
-                            cover = image_data.decode('base64')
+                            cover = process_image(image_data.decode('base64'))
                         else:
-                            cover = get_cover_image(section, mh, metadata,
-                                                    doctype, name, fide)
+                            cover = get_cover_image(section, mh, metadata, name, fide)
                     except IOError:
                         continue
                     if not cover:
                         continue
-                    with open(thumbpath, 'wb') as f:
-                        f.write(cover)
-                        
+                    cover.save(thumbpath)                        
     generate_apnx_files(docs, days)
 
     return 0

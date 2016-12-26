@@ -11,7 +11,6 @@ from lib.extract_cover_thumbs import extract_cover_thumbs
 
 kindlepath = '/mnt/us/'
 days = '1000'
-docs = os.path.join(kindlepath, 'documents')
 
 if __name__ == '__main__':
     Cleaner(kindlepath)
