@@ -5,7 +5,6 @@
 # GNU Affero GPLv3 or later.
 # Copyright © Robert Błaut.
 
-import os
 from lib.cleaner import Cleaner
 from lib.extract_cover_thumbs import extract_cover_thumbs
 
