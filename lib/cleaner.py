@@ -16,11 +16,11 @@ def Cleaner(kindlepath) :
     clean = False
 
     for files in root_dirs:
-        if ( files[:18] == 'wininfo_screenshot' and files[-4:] == '.txt'):
+        if ( files[:18] == 'wininfo_screenshot' and files.endswith('.txt')):
             os.chdir(kindlepath)
             os.remove(files)
         
-    for root, dirs, files in os.walk(kindlepath + 'system'):
+    for root, dirs, files in os.walk(kindlepath):
         for name in files:
             if name.lower().endswith('.partial'):
                 partial = os.path.join(root, name)
