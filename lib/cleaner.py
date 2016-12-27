@@ -109,6 +109,7 @@ def Cleaner(kindlepath) :
                 break
     
         for name in dirs:
-            if len(os.listdir(name)) == 0:
-                empty = os.path.join(root, name)
-                os.rmdir(empty)
+            if os.path.isdir(name):
+                if len(os.listdir(name)) == 0:
+                    empty = os.path.join(root, name)
+                    os.rmdir(empty)
