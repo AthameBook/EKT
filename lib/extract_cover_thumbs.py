@@ -20,6 +20,11 @@ from lib.kfxmeta import get_kindle_kfx_metadata
 from lib.dualmetafix import DualMobiMetaFix
 from PIL import Image
 
+tablica = 'Entries'
+polozenie = 'p_location'
+miniatura = 'p_thumbnail'
+bazacc = '/var/local/cc.db'
+
 def get_cover_image(section, mh, metadata, file, fide):
     try:
         cover_offset = metadata['CoverOffset'][0]
