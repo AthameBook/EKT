@@ -397,6 +397,3 @@ def read_file(filename):
 def write_file(filename, data):
     with open(filename, 'wb') as of:
         of.write(data)
-
-if __name__ == '__main__':
-    main()
