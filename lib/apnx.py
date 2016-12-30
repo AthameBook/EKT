@@ -6,7 +6,6 @@ __docformat__ = 'restructuredtext en'
 
 import struct
 import os
-import sys
 
 import kindle_unpack
 from lib.header import PdbHeaderReader
@@ -71,9 +70,9 @@ class APNXBuilder(object):
         apnx = ''
 
         if apnx_meta['format'] == 'MOBI_8':
-            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","format":"%(format)s","fileRevisionId":"1","acr":"%(acr)s"}' % apnx_meta  # noqa
+            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","format":"%(format)s","fileRevisionId":"1","acr":"%(acr)s"}' % apnx_meta
         else:
-            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","fileRevisionId":"1"}' % apnx_meta  # noqa
+            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","fileRevisionId":"1"}' % apnx_meta
         page_header = '{"asin":"%(asin)s","pageMap":"(1,a,1)"}' % apnx_meta
 
         apnx += struct.pack('>I', 65537)

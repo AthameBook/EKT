@@ -2,11 +2,18 @@
 # -*- coding:utf-8 -*-
 
 import glob, os, shutil
+import sqlite3
 
 def Cleaner(kindlepath) :
 
+    tablica = 'DeviceContentEntry'
+    polozenie = 'p_location'
+    miniatura = 'p_thumbnail'
+    baza = '/var/local/dcm.db'
+
     documentsPath = kindlepath + 'documents'
     checkDocumentsPathVer = os.path.exists(documentsPath)
+    miniaturkipath = os.path.join(kindlepath, 'system', 'thumbnails')
 
     list_dirs = os.walk(documentsPath)
     root_dirs = os.listdir(kindlepath)
@@ -19,18 +26,37 @@ def Cleaner(kindlepath) :
         if ( files[:18] == 'wininfo_screenshot' and files.endswith('.txt')):
             os.chdir(kindlepath)
             os.remove(files)
-        
+
     for root, dirs, files in os.walk(kindlepath):
         for name in files:
             if name.lower().endswith('.partial'):
                 partial = os.path.join(root, name)
                 os.remove(partial)
-    
+
+    conn = sqlite3.connect(baza)
+    conn.row_factory = lambda cursor, row: row[0]
+    c = conn.cursor()
+    c.execute('SELECT {coi} FROM {tn} WHERE {coi} IS NOT NULL AND {coi} != "0"'.\
+        format(coi=miniatura, tn=tablica, cn=polozenie))
+    PlikiMiniaturek = c.fetchall()
+    conn.close()
+
+    for root, dirs, files in os.walk(miniaturkipath):
+        del dirs[:]
+        for name in files:
+            if name.lower().endswith('.jpg'):
+                name = os.path.join(miniaturkipath,  name)
+
+                if name in PlikiMiniaturek:
+                    continue
+                else:
+                    os.remove(name)
+
     for files in os.listdir(documentsPath):
         if files.endswith('_ASC'):
             os.chdir(documentsPath)
             os.remove(files)
-    
+
     for root, dirs, files in list_dirs:
         for numb in dirs:
             if numb:
@@ -107,7 +133,7 @@ def Cleaner(kindlepath) :
                                 problem = 1
                             clean = True
                 break
-    
+
         for name in dirs:
             if os.path.isdir(name):
                 if len(os.listdir(name)) == 0:
