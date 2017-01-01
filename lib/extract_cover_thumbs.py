@@ -24,7 +24,7 @@ polozenie = 'p_location'
 miniatura = 'p_thumbnail'
 baza = '/var/local/dcm.db'
 
-def get_cover_image(section, mh, metadata, file, fide):
+def get_cover_image(section, mh, metadata):
     try:
         cover_offset = metadata['CoverOffset'][0]
     except KeyError:
@@ -66,20 +66,43 @@ def process_image(data):
     cover = cover.convert('L')
     return cover
 
+def generate_apnx_files(ebooki):
+    for ebooks in ebooki:
+        ebook = ebooks[0]
+        ebookonly = os.path.basename(ebook)
+        apnx_builder = APNXBuilder()
+        if os.path.isfile(ebook.encode('UTF-8')):
+            if ebook.lower().endswith(('.azw3', '.mobi', '.azw')):
+                if 'dictionaries' in ebook:
+                    continue
+                if '!DeviceUpgradeLetter!' in ebook:
+                    continue
+                sdr_dir = os.path.join(os.path.splitext(
+                                       ebook)[0] + '.sdr')
+                if not os.path.isdir(sdr_dir):
+                    os.makedirs(sdr_dir)
+                apnx_path = os.path.join(sdr_dir, os.path.splitext(
+                                         ebookonly)[0] + '.apnx')
+                if not os.path.isfile(apnx_path):
+                    apnx_builder.write_apnx(ebook, apnx_path)
+
 def extract_cover_thumbs(kindlepath):
-    docs = os.path.join(kindlepath, 'documents')
     extensions = ('.azw', '.azw3', '.mobi', '.pobi', '.kfx', '.azw8')
-    
+
     conn = sqlite3.connect(baza)
     c = conn.cursor()
     c.execute('SELECT {cn}, {coi} FROM {tn} WHERE {coi} IS NOT NULL AND {coi} != "0"'.\
         format(coi=miniatura, tn=tablica, cn=polozenie))
     files = c.fetchall()
+    c.execute('SELECT {cn} FROM {tn} WHERE {cn} IS NOT NULL AND {cn} != "0"'.\
+        format(coi=miniatura, tn=tablica, cn=polozenie))
+    ebooki = c.fetchall()
     conn.close()
+
+    generate_apnx_files(ebooki)
 
     for names in files:
         name = names[0]
-        nameonly = os.path.basename(name)
         thumbpath = names[1]
         if os.path.isfile(name.encode('UTF-8')):
             if name.lower().endswith(extensions):
@@ -113,20 +136,10 @@ def extract_cover_thumbs(kindlepath):
                         if is_kfx:
                             cover = process_image(image_data.decode('base64'))
                         else:
-                            cover = get_cover_image(section, mh, metadata, name, nameonly)
+                            cover = get_cover_image(section, mh, metadata)
                     except IOError:
                         continue
                     if not cover:
                         continue
                     cover.save(thumbpath)
-            
-            apnx_builder = APNXBuilder()
-            if name.lower().endswith(('.azw3', '.mobi', '.azw')):
-                sdr_dir = os.path.join(os.path.splitext(name)[0] + '.sdr')
-                if not os.path.isdir(sdr_dir.encode('UTF-8')):
-                    os.makedirs(sdr_dir)
-                apnx_path = os.path.join(sdr_dir, os.path.splitext(nameonly)[0] + '.apnx')
-                if not os.path.isfile(apnx_path.encode('UTF-8')):
-                    apnx_builder.write_apnx(name, apnx_path)
-
     return 0
