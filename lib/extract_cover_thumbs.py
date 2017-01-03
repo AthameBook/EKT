@@ -22,6 +22,7 @@ from PIL import Image
 tablica = 'DeviceContentEntry'
 polozenie = 'p_location'
 miniatura = 'p_thumbnail'
+typebooka = 'p_type'
 baza = '/var/local/dcm.db'
 
 def get_cover_image(section, mh, metadata):
@@ -73,8 +74,6 @@ def generate_apnx_files(ebooki):
         apnx_builder = APNXBuilder()
         if os.path.isfile(ebook.encode('UTF-8')):
             if ebook.lower().endswith(('.azw3', '.mobi', '.azw')):
-                if 'dictionaries' in ebook:
-                    continue
                 if '!DeviceUpgradeLetter!' in ebook:
                     continue
                 sdr_dir = os.path.join(os.path.splitext(
@@ -94,8 +93,8 @@ def extract_cover_thumbs(kindlepath):
     c.execute('SELECT {cn}, {coi} FROM {tn} WHERE {coi} IS NOT NULL AND {coi} != "0"'.\
         format(coi=miniatura, tn=tablica, cn=polozenie))
     files = c.fetchall()
-    c.execute('SELECT {cn} FROM {tn} WHERE {cn} IS NOT NULL AND {cn} != "0"'.\
-        format(coi=miniatura, tn=tablica, cn=polozenie))
+    c.execute('SELECT {cn} FROM {tn} WHERE {cn} IS NOT NULL AND {cn} != "0" AND {te} != "Entry:Item:Dictionary"'.\
+        format(coi=miniatura, tn=tablica, cn=polozenie, te=typebooka))
     ebooki = c.fetchall()
     conn.close()
 
