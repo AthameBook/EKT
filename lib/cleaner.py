@@ -12,25 +12,18 @@ def Cleaner(kindlepath) :
     baza = '/var/local/dcm.db'
 
     documentsPath = kindlepath + 'documents'
-    checkDocumentsPathVer = os.path.exists(documentsPath)
     miniaturkipath = os.path.join(kindlepath, 'system', 'thumbnails')
-
+    mrchpath = os.path.join(kindlepath, 'system', '.mrch')
+    
     list_dirs = os.walk(documentsPath)
     root_dirs = os.listdir(kindlepath)
-    docs_dirs = os.listdir(documentsPath)
 
     problem = 0
-
     clean = False
 
     for files in root_dirs:
         if ( files[:18] == 'wininfo_screenshot' and files.endswith('.txt')):
             os.chdir(kindlepath)
-            os.remove(files)
-
-    for files in docs_dirs:
-        if ( files[:6] == '.fuse_'):
-            os.chdir(documentsPath)
             os.remove(files)
 
     for root, dirs, files in os.walk(kindlepath):
@@ -145,3 +138,7 @@ def Cleaner(kindlepath) :
                 if len(os.listdir(name)) == 0:
                     empty = os.path.join(root, name)
                     os.rmdir(empty)
+
+    if os.path.isdir(mrchpath):
+        shutil.rmtree(mrchpath)
+        open(mrchpath, 'w').close()
