@@ -17,6 +17,7 @@ def Cleaner(kindlepath) :
 
     list_dirs = os.walk(documentsPath)
     root_dirs = os.listdir(kindlepath)
+    docs_dirs = os.listdir(documentsPath)
 
     problem = 0
 
@@ -25,6 +26,11 @@ def Cleaner(kindlepath) :
     for files in root_dirs:
         if ( files[:18] == 'wininfo_screenshot' and files.endswith('.txt')):
             os.chdir(kindlepath)
+            os.remove(files)
+
+    for files in docs_dirs:
+        if ( files[:6] == '.fuse_'):
+            os.chdir(documentsPath)
             os.remove(files)
 
     for root, dirs, files in os.walk(kindlepath):
