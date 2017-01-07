@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
+# Copyright © Becky
 
 import glob, os, shutil
 import sqlite3
@@ -126,10 +127,7 @@ def Cleaner(kindlepath) :
                                 break
 
                         if found == False:
-                            try:
-                                shutil.rmtree(unsdr)
-                            except OSError, (errno, strerror):
-                                problem = 1
+                            shutil.rmtree(unsdr)
                             clean = True
                 break
 
